@@ -9,13 +9,15 @@ Passable parameters:
     baud: serial prot baudrate. Defaults is 115200.
 """
 
+from yaml.dumper import BaseDumper
 import rospy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
 from pymycobot.mycobot import MyCobot
 
-mc, rate = None
+mc = None
+rate = None
 
 def callback(data):
     # global mc, rate
@@ -52,7 +54,7 @@ def mycobot_controller():
     # initiate mycobot
     port = rospy.get_param("~port", "/dev/ttyAMA0")
     baud = rospy.get_param("~baud", 1000000)
-    rospy.loginfo(f"MyCobot connecting to port={port} with baud={baud}")
+    rospy.loginfo(f"MyCobot connecting to port={} with baud={}" .format(port, baud))
     mc = MyCobot(port, baud)
 
     # start the node
