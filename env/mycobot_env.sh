@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source /home/wehak/code/ACIT4280/catkin_ws/devel/setup.bash
+source /home/ubuntu/catkin_ws/devel/setup.bash
 
 export ROS_HOSTNAME=ubuntu
 export ROS_MASTER_URI=http://wehak-xps:11311

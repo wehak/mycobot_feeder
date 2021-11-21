@@ -2,7 +2,7 @@
 
 <!-- Define machines used by the system -->
 	<machine name="host" address="192.168.1.254" env-loader="$(find mycobot_test)/env/host_env.sh" />
-	<machine name="mycobot" address="ubuntu" env-loader="$(find mycobot_test)/env/mycobot_env.sh" user="oslomet" password="oslomet" />
+	<machine name="mycobot" address="ubuntu" env-loader="~/mycobot_env.sh" user="oslomet" password="oslomet" />
 
 	<node machine="host" name="listener1" pkg="rospy_tutorials" type="listener.py" />
 	<node machine="mycobot" name="talker1" pkg="rospy_tutorials" type="talker.py" />
