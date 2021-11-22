@@ -54,7 +54,7 @@ def mycobot_controller():
     # initiate mycobot
     port = rospy.get_param("~port", "/dev/ttyAMA0")
     baud = rospy.get_param("~baud", 1000000)
-    rospy.loginfo(f"MyCobot connecting to port={} with baud={}" .format(port, baud))
+    rospy.loginfo("MyCobot connecting to port={} with baud={}" .format(port, baud))
     mc = MyCobot(port, baud)
 
     # start the node
@@ -63,10 +63,12 @@ def mycobot_controller():
 
 
     # start the subscriber
-    rospy.Subscriber("joint_state_commands", JointState, callback)
+    rospy.Subscriber("joint_states", JointState, callback)
 
     # start the publisher
     pub = rospy.Publisher("joint_state_status", JointState, queue_size=10)
+
+    # publish while ros is running
     while not rospy.is_shutdown():
         angles = mc.get_angles()
         joint_state_send.header.stamp = rospy.Time.now()
@@ -74,10 +76,6 @@ def mycobot_controller():
         rospy.loginfo(joint_state_send)
         pub.publish(joint_state_send)
         rate.sleep()
-
-    # spin() simply keeps python from exiting until this node is stopped
-    # print("spin ...")
-    # rospy.spin()
 
 if __name__ == "__main__":
     mycobot_controller()
