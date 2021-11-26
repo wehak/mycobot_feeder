@@ -1,0 +1,58 @@
+<launch>
+<!-- video input -->
+  <group>
+   <!-- launch video stream -->
+   <include file="$(find video_stream_opencv)/launch/camera.launch" >
+      <!-- node name and ros graph name -->
+      <arg name="camera_name" value="video" />
+      <!-- means video device 0, /dev/video0 -->
+      <arg name="video_stream_provider" value="0" />
+      <!-- set camera fps to (if the device allows) -->
+      <arg name="set_camera_fps" value="30"/>
+      <!-- set buffer queue size of frame capturing to -->
+      <arg name="buffer_queue_size" value="1" />
+      <!-- throttling the querying of frames to -->
+      <arg name="fps" value="30" />
+      <!-- setting frame_id -->
+      <arg name="frame_id" value="webcam" />
+      <!-- camera info loading, take care as it needs the "file:///" at the start , e.g.:
+      "file:///$(find your_camera_package)/config/your_camera.yaml" -->
+      <arg name="camera_info_url" value="file:///$(find mycobot_feeder)/config/laptop_webcam.yaml" />
+      <!-- flip the image horizontally (mirror it) -->
+      <arg name="flip_horizontal" value="false" />
+      <!-- flip the image vertically -->
+      <arg name="flip_vertical" value="false" />
+      <!-- visualize on an image_view window the stream generated -->
+      <arg name="visualize" value="false" />
+   </include>
+  </group>
+
+<!-- aruco_detect -->
+<group>
+    <!-- namespace for camera input -->
+    <arg name="camera" default="video"/>
+    <arg name="image" default="image_raw"/>
+    <arg name="transport" default="compressed"/>
+    <arg name="fiducial_len" default="0.059"/>
+    <arg name="dictionary" default="0"/>
+    <arg name="do_pose_estimation" default="true"/>
+    <arg name="ignore_fiducials" default="" />
+    <arg name="fiducial_len_override" default="" />
+
+  <node pkg="aruco_detect" name="aruco_detect" type="aruco_detect" output="screen" respawn="false">
+    <param name="image_transport" value="$(arg transport)"/>
+    <param name="publish_images" value="true" />
+    <param name="fiducial_len" value="$(arg fiducial_len)"/>
+    <param name="dictionary" value="$(arg dictionary)"/>
+    <param name="do_pose_estimation" value="$(arg do_pose_estimation)"/>
+    <param name="ignore_fiducials" value="$(arg ignore_fiducials)"/>
+    <param name="fiducial_len_override" value="$(arg fiducial_len_override)"/>
+    <remap from="/camera/compressed" 
+        to="$(arg camera)/$(arg image)/$(arg transport)"/>
+    <remap from="/camera_info" to="$(arg camera)/camera_info"/>
+  </node>
+</group>
+
+<node name="transform_publisher" pkg="mycobot_feeder" type="transform_publisher.py" />
+
+</launch>

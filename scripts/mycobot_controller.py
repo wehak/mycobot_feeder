@@ -1,15 +1,5 @@
 #!/usr/bin/env python2
 
-"""[summary]
-This file obtains the joint angle of the manipulator in ROS,
-and then sends it directly to the real manipulator using `pymycobot` API.
-This file is [slider_control.launch] related script.
-Passable parameters:
-    port: serial prot string. Defaults is '/dev/ttyUSB0'
-    baud: serial prot baudrate. Defaults is 115200.
-"""
-
-from yaml.dumper import BaseDumper
 import rospy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
@@ -20,16 +10,12 @@ mc = None
 rate = None
 
 def callback(data):
-    # global mc, rate
-
-    # rospy.loginfo(rospy.get_caller_id() + "%s", data.position)
     rospy.loginfo(data.position)
     data_list = []
     for index, value in enumerate(data.position):
         data_list.append(value)
 
     mc.send_radians(data_list, 80)
-    # time.sleep(0.5)
     rate.sleep()
 
 
@@ -59,11 +45,10 @@ def mycobot_controller():
 
     # start the node
     rospy.init_node("mycobot_controller", anonymous=True)
-    rate = rospy.Rate(10) # Hz
-
+    rate = rospy.Rate(30) # Hz
 
     # start the subscriber
-    rospy.Subscriber("joint_states", JointState, callback)
+    rospy.Subscriber("/move_group/fake_controller_joint_states", JointState, callback)
 
     # start the publisher
     pub = rospy.Publisher("joint_state_status", JointState, queue_size=10)
