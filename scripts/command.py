@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 import time
-from math import pi, cos, sin, atan2
+from math import pi
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -25,6 +25,7 @@ class Command():
       self.init_moveit_mycobot()
       self.menu()
 
+   # start the moveit python API interface
    def init_moveit_mycobot(self):
       self.robot = moveit_commander.RobotCommander()
       self.scene = moveit_commander.PlanningSceneInterface()
@@ -77,7 +78,7 @@ class Command():
          try:
             choice = int(raw_input())
          except:
-            print("Must be a integer between 1 and 41")
+            print("Must be a integer between 1 and 4")
       
       if choice == 1:
          self.reset_mycobot()
@@ -91,6 +92,7 @@ class Command():
          print("Error \"{}\" choice" .format(choice))
 
    def reset_mycobot(self):
+      # get the robot joint positons and set new ones
       joint_goal = self.move_group.get_current_joint_values()
       joint_goal[0] = 0
       joint_goal[1] = -pi/4
@@ -99,9 +101,11 @@ class Command():
       joint_goal[4] = pi
       joint_goal[5] = 0
 
+      # send new joints positions to the robot
       self.move_group.go(joint_goal, wait=True)
       self.move_group.stop()
 
+      # return to menu
       time.sleep(1)
       self.menu()
 
@@ -110,24 +114,20 @@ class Command():
       print("Sending end effector to food at: \nx={} \ny={} \nz={} " .format(
          self.pose_bf["position"][0],
          self.pose_bf["position"][1],
-         self.pose_bf["position"][2]# + 0.05
+         self.pose_bf["position"][2]
       ))
 
+      # create a new pose goal with the position of the food tag
       pose_goal = Pose()
-      pose_goal.orientation.w = -1
       pose_goal.position.x = self.pose_bf["position"][0]
       pose_goal.position.y = self.pose_bf["position"][1]
-      pose_goal.position.z = self.pose_bf["position"][2] + 0.05
+      pose_goal.position.z = self.pose_bf["position"][2] + 0.1
 
-
-      theta = atan2(
-         self.pose_bf["position"][0],
-         self.pose_bf["position"][1]
-      )
+      # currently the orientation of the end effector is not considered
       new_r = R.from_dcm([
-         [cos(theta),   -sin(theta),   0],
-         [sin(theta),   cos(theta),    0],
-         [0,            0,             -1],
+         [1, 0, 0],
+         [0, 1, 0],
+         [0, 0, 1],
       ]).as_quat()
 
       pose_goal.orientation.x = new_r[0]
@@ -135,11 +135,13 @@ class Command():
       pose_goal.orientation.z = new_r[2]
       pose_goal.orientation.w = new_r[3]
 
+      # send commands to robots
       self.move_group.set_pose_target(pose_goal)
       plan = self.move_group.go(wait=True)
       self.move_group.stop()
       self.move_group.clear_pose_targets()
 
+      # return to menu
       time.sleep(1)
       self.menu()
 
@@ -148,7 +150,7 @@ class Command():
       print("\nSending end effector to user at: \nx={} \ny={} \nz={} " .format(
          self.pose_bu["position"][0],
          self.pose_bu["position"][1],
-         self.pose_bu["position"][2]# + 0.05
+         self.pose_bu["position"][2]
       ))
 
       pose_goal = Pose()
@@ -157,36 +159,10 @@ class Command():
       pose_goal.position.y = self.pose_bu["position"][1]
       pose_goal.position.z = self.pose_bu["position"][2]
 
-      # flip the orientation 180 degrees relative to user
-      # old_r = R.from_quat([
-      #    self.pose_bu["orientation"][0],
-      #    self.pose_bu["orientation"][1],
-      #    self.pose_bu["orientation"][2],
-      #    self.pose_bu["orientation"][3],
-      # ]).as_dcm()
-
-      # new_r = R.from_dcm([
-      #    [],
-      #    [],
-      #    [],
-      # ]).as_quat()
-      # new_r = R.from_dcm(np.linalg.inv(old_r)).as_quat()
-
-      # new_r = R.from_dcm([
-      #    [-1, 0, 0],
-      #    [0, 1, 0],
-      #    [0, 0, -1]
-      # ]).as_quat()
-
-
-      theta = atan2(
-         self.pose_bu["position"][0],
-         self.pose_bu["position"][1]
-      )
       new_r = R.from_dcm([
-         [cos(theta),   -sin(theta),   0],
-         [sin(theta),   cos(theta),    0],
-         [0,            0,             -1],
+         [1, 0, 0],
+         [0, 1, 0],
+         [0, 0, 1],
       ]).as_quat()
 
       pose_goal.orientation.x = new_r[0]
@@ -198,7 +174,6 @@ class Command():
       plan = self.move_group.go(wait=True)
       self.move_group.stop()
       self.move_group.clear_pose_targets()
-
 
       self.menu()
 

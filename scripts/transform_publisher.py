@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # define position of robot (b)ase in relation to robot (t)ag frame
     T_bt = np.array([
         [1, 0, 0, 0.0],
-        [0, 0, -1, 0.045],
+        [0, 0, -1, -0.045],
         [0, 1, 0, 0],
         [0, 0, 0, 1]
     ])
